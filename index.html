@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>日本語クイズ</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+          }
+          
+          .container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #ffffff;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.5s ease;
+            max-width: 2000px;
+            width: 1300px;
+            height: 100%;
+            overflow: hidden;
+          }
+          
+          @keyframes slideIn {
+            from {
+              opacity: 0;
+              transform: translateY(-100%);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          
+          h1 {
+            margin: 0;
+            color: #00bfa5;
+            font-size: 36px;
+            font-weight: 600;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+          }
+          
+          .question {
+            margin-bottom: 16px;
+            text-align: center;
+          }
+          
+          .emoji {
+            font-size: 48px;
+            margin-top: 8px;
+          }
+          
+          .options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-gap: 16px;
+            justify-items: center;
+            margin-top: 32px;
+          }
+          
+          .options button {
+            padding: 16px;
+            background-color: #00bfa5;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+          }
+          
+          .options button:hover {
+            background-color: #027c6b;
+          }
+          
+          .score {
+            font-weight: bold;
+            margin-top: 32px;
+            text-align: center;
+            animation: slideIn 0.5s ease;
+            font-size: 24px;
+          }
+          
+          .character {
+            position: absolute;
+            top: 50%;
+            left: -100px;
+            width: 200px;
+            height: 200px;
+            background-image: url('character.png'); /* Replace with your character image */
+            background-size: cover;
+            animation: fadeIn 1s ease;
+          }
+          
+          @keyframes fadeIn {
+            from {
+              opacity: 0;
+              transform: translateY(-50%);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(-50%);
+            }
+          }
+          
+          .intro-section {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, #00bfa5, rgb(0, 175, 152));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out;
+          }
+          
+          .logo {
+            max-width: 200px;
+            max-height: 200px;
+            animation: pulse 1.5s infinite;
+          }
+          
+          .intro-section.hide {
+            opacity: 0;
+            pointer-events: none;
+          }
+          
+          .teaching-container {
+            margin-top: 24px;
+            text-align: center;
+          }
+          
+          .teaching-text {
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: #ffffff;
+            font-size: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+          }
+          
+          .teaching-content-list {
+            list-style-type: none;
+            padding-left: 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+          }
+          
+          .teaching-content-list li {
+            background-color: #00bfa5;
+            color: #ffffff;
+            border-radius: 20px;
+            padding: 12px 24px;
+            font-size: 16px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+          }
+          
+          .next-button {
+            margin-top: 32px;
+            display: flex;
+            justify-content: center;
+          }
+          
+          .next-button button {
+            padding: 16px 32px;
+            background-color: #00bfa5;
+            color: #ffffff;
+            border: none;
+            border-radius: 30px;
+            font-size: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+          }
+          
+          .next-button button:hover {
+            background-color: #027c6b;
+          }
+          
+          @keyframes pulse {
+            0% {
+              transform: scale(1);
+            }
+            50% {
+              transform: scale(1.1);
+            }
+            100% {
+              transform: scale(1);
+            }
+          }
+          
+    </style>
+</head>
+
+<body>
+    <div class="intro-section">
+        <img src="your-logo.png" alt="Logo" class="logo">
+    </div>
+    <script>
+        // Function to hide the intro section after a certain duration
+        function hideIntroSection() {
+            const introSection = document.querySelector('.intro-section');
+            introSection.classList.add('hide');
+        }
+
+        // Hide the intro section after 5 seconds (5000 milliseconds)
+        setTimeout(hideIntroSection, 5000);
+    </script>
+    <div class="container">
+        <h1>日本語クイズ</h1>
+        <div class="question">
+            <p id="questionText">「幸せ」という言葉の反対語は何ですか？</p>
+            <p class="emoji">&#x1F60A;</p>
+        </div>
+        <div class="options">
+            <button onclick="checkAnswer('a')">悲しい</button>
+            <button onclick="checkAnswer('b')">怒っている</button>
+            <button onclick="checkAnswer('c')">興奮している</button>
+            <button onclick="checkAnswer('d')">困惑している</button>
+        </div>
+        <p id="scoreText" class="score"></p>
+        <button id="nextButton" class="next-button" onclick="nextQuestion()" style="display: none;">Next</button>
+    </div>
+
+    <div class="character"></div>
+
+    <script>
+        const levels = [
+          {
+            level: 1,
+            questions: [
+              {
+                question: "What is the Japanese word for 'hello' (こんにちは)?",
+                emoji: "👋",
+                options: {
+                  a: "こんにちは (Konnichiwa)",
+                  b: "さようなら (Sayonara)",
+                  c: "ありがとう (Arigatou)",
+                  d: "ごめんなさい (Gomen'nasai)"
+                },
+                answer: "a"
+              },
+              {
+                teaching: true,
+                lesson: "Great job! You've learned some basic words and numbers. Let's proceed to the quiz questions. Keep practicing!",
+                teachingContent: []
+              },
+              {
+                question: "What comes after 9 (9の次の数字は何ですか)?",
+                emoji: "🔢",
+                options: {
+                  a: "10",
+                  b: "8",
+                  c: "11",
+                  d: "7"
+                },
+                answer: "a"
+              }
+            ]
+          },
+          {
+            level: 2,
+            questions: [
+              {
+                question: "What is the Japanese word for 'big' (大きい)?",
+                emoji: "🚀",
+                options: {
+                  a: "小さい (Chiisai)",
+                  b: "高い (Takai)",
+                  c: "細い (Hosoi)",
+                  d: "長い (Nagai)"
+                },
+                answer: "a"
+              },
+              {
+                question: "How do you say 'goodbye' in English ('さようなら'という英語はどう言いますか)?",
+                emoji: "👋",
+                options: {
+                  a: "Bye",
+                  b: "See you",
+                  c: "Goodbye",
+                  d: "Farewell"
+                },
+                answer: "c"
+              },
+              {
+                teaching: true,
+                lesson: "Let's learn some more words in Japanese. Repeat after me:",
+                teachingContent: [
+                  "家（いえ）- House",
+                  "犬（いぬ）- Dog",
+                  "猫（ねこ）- Cat",
+                  "本（ほん）- Book",
+                  "友達（ともだち）- Friend",
+                  "食べ物（たべもの）- Food",
+                  "水（みず）- Water",
+                  "学校（がっこう）- School",
+                  "歌（うた）- Song",
+                  "家族（かぞく）- Family"
+                ]
+              },
+              {
+                question: "What is the English translation of '緑' (みどり)?",
+                emoji: "💚",
+                options: {
+                  a: "Red",
+                  b: "Blue",
+                  c: "Green",
+                  d: "Yellow"
+                },
+                answer: "c"
+              },
+              {
+                teaching: true,
+                lesson: "Fantastic progress! Let's learn some more useful phrases in Japanese. Repeat after me:",
+                teachingContent: [
+                  "こんにちは - Hello",
+                  "名前（なまえ）は[name]です - My name is [name]",
+                  "今何時（いまなんじ）ですか？ - What time is it?",
+                  "好き（すき）です - I like",
+                  "嫌い（きらい）です - I don't like",
+                  "それはどこですか？ - Where is it?",
+                  "ゆっくり話してください - Please speak slowly",
+                  "助けていただけますか？ - Can you help me?",
+                  "ごめんなさい - I'm sorry",
+                  "助けていただきありがとうございます - Thank you for your help!"
+                ]
+              },
+              {
+                question: "What is the capital of Mexico (メキシコの首都はどこですか)?",
+                emoji: "🌎",
+                options: {
+                  a: "メキシコシティ (Mexico City)",
+                  b: "モンテレイ (Monterrey)",
+                  c: "グアダラハラ (Guadalajara)",
+                  d: "プエブラ (Puebla)"
+                },
+                answer: "a"
+              },
+              {
+                teaching: true,
+                lesson: "Great job! Let's continue learning more words in Japanese. Repeat after me:",
+                teachingContent: [
+                  "月曜日（げつようび）- Monday",
+                  "火曜日（かようび）- Tuesday",
+                  "水曜日（すいようび）- Wednesday",
+                  "木曜日（もくようび）- Thursday",
+                  "金曜日（きんようび）- Friday",
+                  "土曜日（どようび）- Saturday",
+                  "日曜日（にちようび）- Sunday",
+                  "月（つき）- Month",
+                  "年（とし）- Year",
+                  "今日（きょう）- Today"
+                ]
+              },
+              {
+                question: "What comes before 5 (5の前の数字は何ですか)?",
+                emoji: "🔢",
+                options: {
+                  a: "4",
+                  b: "6",
+                  c: "3",
+                  d: "2"
+                },
+                answer: "a"
+              }
+            ]
+          },
+          {
+            level: 3,
+            questions: [
+              {
+                question: "What is the synonym for 'tired' (疲れたという言葉の同義語は何ですか)?",
+                emoji: "😫",
+                options: {
+                  a: "幸せ (Shiawase)",
+                  b: "元気 (Genki)",
+                  c: "悲しい (Kanashii)",
+                  d: "退屈 (たいくつ) (Taikutsu)"
+                },
+                answer: "d"
+              },
+              {
+                question: "How do you say 'thank you' in English ('ありがとう'という英語はどう言いますか)?",
+                emoji: "👋",
+                options: {
+                  a: "Thank you",
+                  b: "Welcome",
+                  c: "Please",
+                  d: "Sorry"
+                },
+                answer: "a"
+              },
+              {
+                teaching: true,
+                lesson: "Let's learn some more words in Japanese. Repeat after me:",
+                teachingContent: [
+                  "時間（じかん）- Time",
+                  "仕事（しごと）- Work",
+                  "パーティー - Party",
+                  "ビーチ - Beach",
+                  "山（やま）- Mountain",
+                  "街（まち）- City",
+                  "バス - Bus",
+                  "飛行機（ひこうき）- Airplane",
+                  "電車（でんしゃ）- Train",
+                  "車（くるま）- Car"
+                ]
+              },
+              {
+                question: "What is the English translation of '青' (あお)?",
+                emoji: "💙",
+                options: {
+                  a: "Red",
+                  b: "Blue",
+                  c: "Green",
+                  d: "Yellow"
+                },
+                answer: "b"
+              },
+              {
+                teaching: true,
+                lesson: "Let's continue with more useful phrases in Japanese. Repeat after me:",
+                teachingContent: [
+                  "トイレはどこですか？ - Where is the bathroom?",
+                  "いくらですか？ - How much does it cost?",
+                  "コーヒーをお願いします - I would like a coffee, please",
+                  "カードで支払ってもいいですか？ - Can I pay with a card?",
+                  "分かりません - I don't understand",
+                  "もう一度言っていただけますか？ - Can you repeat, please?",
+                  "おすすめは何ですか？ - What do you recommend?",
+                  "地元料理を食べられる場所はどこですか？ - Where can I eat local food?",
+                  "フライトの時間は何時ですか？ - What time is the flight?",
+                  "ではまた！ - See you later!"
+                ]
+              },
+              {
+                question: "What is the capital of Argentina (アルゼンチンの首都はどこですか)?",
+                emoji: "🌏",
+                options: {
+                  a: "ブエノスアイレス (Buenos Aires)",
+                  b: "コルドバ (Córdoba)",
+                  c: "ロサリオ (Rosario)",
+                  d: "メンドーサ (Mendoza)"
+                },
+                answer: "a"
+              },
+              {
+                teaching: true,
+                lesson: "Congratulations! You've reached the final level. Let's learn more words in Japanese. Repeat after me:",
+                teachingContent: [
+                  "お誕生日おめでとうございます - Happy birthday",
+                  "愛（あい） - Love",
+                  "喜び（よろこび）- Joy",
+                  "夢（ゆめ） - Dream",
+                  "学ぶ（まなぶ）- To learn",
+                  "旅行する（りょこうする）- To travel",
+                  "聞く（きく）- To listen",
+                  "踊る（おどる）- To dance",
+                  "食べる（たべる）- To eat",
+                  "飲む（のむ）- To drink"
+                ]
+              },
+              {
+                question: "What comes after 15 (15の次の数字は何ですか)?",
+                emoji: "🔢",
+                options: {
+                  a: "16",
+                  b: "14",
+                  c: "17",
+                  d: "13"
+                },
+                answer: "a"
+              }
+            ]
+          }
+        ];
+    
+        let currentLevelIndex = 0;
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        function displayQuestion() {
+            const currentLevel = levels[currentLevelIndex];
+            const currentQuestion = currentLevel.questions[currentQuestionIndex];
+
+            const questionText = document.getElementById("questionText");
+            questionText.innerHTML = currentQuestion.question;
+
+            const emoji = document.querySelector(".emoji");
+            emoji.innerHTML = currentQuestion.emoji;
+
+            const optionsContainer = document.querySelector(".options");
+            optionsContainer.innerHTML = "";
+
+            for (const option in currentQuestion.options) {
+                const button = document.createElement("button");
+                button.textContent = currentQuestion.options[option];
+                button.setAttribute("onclick", `checkAnswer('${option}')`);
+                optionsContainer.appendChild(button);
+            }
+
+            if (currentQuestion.teaching) {
+                const nextButton = document.getElementById("nextButton");
+                nextButton.style.display = "block";
+            } else {
+                const nextButton = document.getElementById("nextButton");
+                nextButton.style.display = "none";
+            }
+        }
+
+        function checkAnswer(selectedOption) {
+            const currentLevel = levels[currentLevelIndex];
+            const currentQuestion = currentLevel.questions[currentQuestionIndex];
+
+            if (!currentQuestion.teaching) {
+                if (selectedOption === currentQuestion.answer) {
+                    score++;
+                }
+            }
+
+            if (currentQuestionIndex < currentLevel.questions.length - 1) {
+                currentQuestionIndex++;
+                displayQuestion();
+            } else {
+                if (currentLevelIndex < levels.length - 1) {
+                    const continueLearning = confirm("Congratulations! You've completed Level " + currentLevel.level + ". Do you want to continue learning Japanese?");
+                    if (continueLearning) {
+                        currentQuestionIndex = 0;
+                        currentLevelIndex++;
+                        displayQuestion();
+                    } else {
+                        showScore();
+                    }
+                } else {
+                    showScore();
+                }
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            displayQuestion();
+        }
+
+        function showScore() {
+            const container = document.querySelector(".container");
+            const scoreText = document.getElementById("scoreText");
+            scoreText.textContent = "Quiz completed! Score: " + score + " / " + getTotalQuestionsCount();
+            scoreText.style.display = "block";
+        }
+
+        function getTotalQuestionsCount() {
+            let totalQuestionsCount = 0;
+            for (const level of levels) {
+                totalQuestionsCount += level.questions.length;
+            }
+            return totalQuestionsCount;
+        }
+
+        displayQuestion();
+      </script>
+</body>
+
+</html>
